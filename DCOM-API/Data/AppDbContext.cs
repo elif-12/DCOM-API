@@ -13,10 +13,15 @@ namespace DCOM_API.Data
         public DbSet<Study> Studies => Set<Study>();
         public DbSet<Series> Series => Set<Series>();
         public DbSet<DicomFile> DicomFiles => Set<DicomFile>();
+        public DbSet<User> Users => Set<User>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             modelBuilder.Entity<Patient>()
                 .HasIndex(p => p.PatientId)
