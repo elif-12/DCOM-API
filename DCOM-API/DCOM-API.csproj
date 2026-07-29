@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\" />
-    <Folder Include="wwwroot\dicoms\" />
   </ItemGroup>
 
 </Project>
