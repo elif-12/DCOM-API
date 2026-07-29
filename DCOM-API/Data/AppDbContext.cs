@@ -27,6 +27,12 @@ namespace DCOM_API.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasQueryFilter(u => !u.IsDeleted);   // <-- eklenen satır: silinmişleri gizle
 
             // --- Multi-tenant: her sorguya otomatik "sadece benim verim" filtresi ---
             modelBuilder.Entity<Patient>().HasQueryFilter(p => p.UserId == _currentUser.UserId);

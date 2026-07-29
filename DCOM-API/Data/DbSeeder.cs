@@ -24,7 +24,7 @@ public static class DbSeeder
             FullName = fullName,
             Role = UserRole.SuperAdmin,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            
         };
 
         context.Users.Add(admin);

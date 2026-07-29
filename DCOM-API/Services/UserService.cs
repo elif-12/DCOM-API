@@ -39,7 +39,7 @@ public class UserService : IUserService
             FullName = request.FullName,
             Role = UserRole.Doctor,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+           
         };
 
         _context.Users.Add(user);
