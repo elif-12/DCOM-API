@@ -1,32 +1,29 @@
-﻿using DCOM_API.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using DCOM_API.Application.Interfaces;
 
 namespace DCOM_API.Services;
 
 public class StudyService : IStudyService
 {
-    private readonly AppDbContext _context;
+    private readonly IStudyRepository _studies;
 
-    public StudyService(AppDbContext context)
+    public StudyService(IStudyRepository studies)
     {
-        _context = context;
+        _studies = studies;
     }
 
     public async Task<List<StudySummary>> GetAllAsync()
     {
-        return await _context.Studies
-            .Include(s => s.Patient)
-            .Include(s => s.Series)
-                .ThenInclude(se => se.DicomFiles)
-            .Select(s => new StudySummary(
-                s.Id,
-                s.StudyInstanceUid,
-                s.Description,
-                s.StudyDate,
-                s.Patient.PatientName,
-                s.Patient.PatientId,
-                s.Series.Count,
-                s.Series.SelectMany(se => se.DicomFiles).Count()))
-            .ToListAsync();
+        var studies = await _studies.GetAllWithDetailsAsync();
+
+        return studies.Select(s => new StudySummary(
+            s.Id,
+            s.StudyInstanceUid,
+            s.Description,
+            s.StudyDate,
+            s.Patient.PatientName,
+            s.Patient.PatientId,
+            s.Series.Count,
+            s.Series.Sum(se => se.DicomFiles.Count)
+        )).ToList();
     }
 }

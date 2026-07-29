@@ -1,5 +1,7 @@
 using System.Text;
+using DCOM_API.Application.Interfaces;
 using DCOM_API.Data;
+using DCOM_API.Infrastructure;
 using DCOM_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Swagger UI'da "Authorize" butonu ile Bearer token girebilmek için
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -35,10 +36,19 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Servisler
 builder.Services.AddScoped<IDicomService, DicomService>();
 builder.Services.AddScoped<IStudyService, StudyService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Repository'ler (Infrastructure)
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IStudyRepository, StudyRepository>();
+builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
+builder.Services.AddScoped<IDicomFileRepository, DicomFileRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Multi-tenant: giriş yapan kullanıcıyı token'dan okumak için
 builder.Services.AddHttpContextAccessor();
