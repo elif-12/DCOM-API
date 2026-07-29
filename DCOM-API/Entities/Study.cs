@@ -1,8 +1,8 @@
 ﻿namespace DCOM_API.Entities
 {
-    public class Study : IOwnedEntity
+    public class Study :BaseEntity, IOwnedEntity
     {
-        public Guid Id { get; set; }
+       
         public string StudyInstanceUid { get; set; } = string.Empty;
         public DateTime? StudyDate { get; set; }
         public string? Description { get; set; }

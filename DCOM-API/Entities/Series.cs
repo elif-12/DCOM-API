@@ -1,8 +1,7 @@
 ﻿namespace DCOM_API.Entities
 {
-    public class Series : IOwnedEntity
+    public class Series :BaseEntity, IOwnedEntity
     {
-        public Guid Id { get; set; }
         public string SeriesInstanceUid { get; set; } = string.Empty;
         public string? Modality { get; set; }
 

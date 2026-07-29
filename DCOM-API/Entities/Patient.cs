@@ -1,8 +1,8 @@
 ﻿namespace DCOM_API.Entities
 {
-    public class Patient : IOwnedEntity
+    public class Patient :BaseEntity, IOwnedEntity
     {
-        public Guid Id { get; set; }
+      
         public string PatientId { get; set; } = string.Empty;
         public string PatientName { get; set; } = string.Empty;
 

@@ -70,12 +70,14 @@ namespace DCOM_API.Data
         public override int SaveChanges()
         {
             ApplyUserId();
+            ApplyAuditFields();
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             ApplyUserId();
+            ApplyAuditFields();
             return base.SaveChangesAsync(cancellationToken);
         }
 
@@ -88,6 +90,24 @@ namespace DCOM_API.Data
             {
                 if (entry.State == EntityState.Added)
                     entry.Entity.UserId = userId.Value;
+            }
+        }
+        private void ApplyAuditFields()
+        {
+            var now = DateTime.UtcNow;
+            var userId = _currentUser.UserId;
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedDate = now;
+                    entry.Entity.CreatorUserId = userId;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedDate = now;
+                }
             }
         }
     }
