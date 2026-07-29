@@ -25,14 +25,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateDoctor(CreateUserRequest request)
     {
-        try
-        {
-            var user = await _userService.CreateDoctorAsync(request);
-            return CreatedAtAction(nameof(GetAll), new { id = user.Id }, user);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var user = await _userService.CreateDoctorAsync(request);
+        return CreatedAtAction(nameof(GetAll), new { id = user.Id }, user);
     }
 }

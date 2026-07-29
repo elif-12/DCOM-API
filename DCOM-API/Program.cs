@@ -83,7 +83,7 @@ using (var scope = app.Services.CreateScope())
     await context.Database.MigrateAsync();
     await DbSeeder.SeedSuperAdminAsync(context, app.Configuration);
 }
-
+app.UseMiddleware<DCOM_API.Middleware.ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
