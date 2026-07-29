@@ -1,12 +1,17 @@
 ﻿using DCOM_API.Entities;
+using DCOM_API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace DCOM_API.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        private readonly ICurrentUserService _currentUser;
+
+        public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUser)
+            : base(options)
         {
+            _currentUser = currentUser;
         }
 
         public DbSet<Patient> Patients => Set<Patient>();
@@ -23,16 +28,23 @@ namespace DCOM_API.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
+            // --- Multi-tenant: her sorguya otomatik "sadece benim verim" filtresi ---
+            modelBuilder.Entity<Patient>().HasQueryFilter(p => p.UserId == _currentUser.UserId);
+            modelBuilder.Entity<Study>().HasQueryFilter(s => s.UserId == _currentUser.UserId);
+            modelBuilder.Entity<Series>().HasQueryFilter(s => s.UserId == _currentUser.UserId);
+            modelBuilder.Entity<DicomFile>().HasQueryFilter(d => d.UserId == _currentUser.UserId);
+
+            // --- Benzersizlik artık KULLANICI BAZINDA (aynı hasta farklı kullanıcılarda olabilir) ---
             modelBuilder.Entity<Patient>()
-                .HasIndex(p => p.PatientId)
+                .HasIndex(p => new { p.UserId, p.PatientId })
                 .IsUnique();
 
             modelBuilder.Entity<Study>()
-                .HasIndex(s => s.StudyInstanceUid)
+                .HasIndex(s => new { s.UserId, s.StudyInstanceUid })
                 .IsUnique();
 
             modelBuilder.Entity<Series>()
-                .HasIndex(s => s.SeriesInstanceUid)
+                .HasIndex(s => new { s.UserId, s.SeriesInstanceUid })
                 .IsUnique();
 
             modelBuilder.Entity<Patient>()
@@ -52,6 +64,31 @@ namespace DCOM_API.Data
                 .WithOne(df => df.Series)
                 .HasForeignKey(df => df.SeriesId)
                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        // --- Kaydederken yeni eklenen her kayda otomatik UserId yaz ---
+        public override int SaveChanges()
+        {
+            ApplyUserId();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyUserId();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void ApplyUserId()
+        {
+            var userId = _currentUser.UserId;
+            if (userId is null) return;
+
+            foreach (var entry in ChangeTracker.Entries<IOwnedEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                    entry.Entity.UserId = userId.Value;
+            }
         }
     }
 }

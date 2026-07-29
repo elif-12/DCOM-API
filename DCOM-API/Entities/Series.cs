@@ -1,10 +1,12 @@
 ﻿namespace DCOM_API.Entities
 {
-    public class Series
+    public class Series : IOwnedEntity
     {
         public Guid Id { get; set; }
         public string SeriesInstanceUid { get; set; } = string.Empty;
         public string? Modality { get; set; }
+
+        public Guid UserId { get; set; }
 
         public Guid StudyId { get; set; }
         public Study Study { get; set; } = null!;

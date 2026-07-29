@@ -1,10 +1,12 @@
 ﻿using DCOM_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DCOM_API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class StudiesController : ControllerBase
 {
     private readonly IStudyService _studyService;
