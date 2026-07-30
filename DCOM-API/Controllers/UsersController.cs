@@ -1,9 +1,9 @@
+using DCOM_API.Common;
 using DCOM_API.Dtos;
 using DCOM_API.Entities;
 using DCOM_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DCOM_API.Common;
 
 namespace DCOM_API.Controllers;
 
@@ -20,8 +20,8 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    => Ok(ApiResponse<List<UserResponse>>.Success(await _userService.GetAllAsync()));
+    public async Task<IActionResult> GetAll([FromQuery] PageRequest request)
+        => Ok(ApiResponse<PageResponse<UserResponse>>.Success(await _userService.GetAllAsync(request)));
 
     [HttpPost]
     public async Task<IActionResult> CreateDoctor(CreateUserRequest request)
@@ -29,6 +29,4 @@ public class UsersController : ControllerBase
         var user = await _userService.CreateDoctorAsync(request);
         return Ok(ApiResponse<UserResponse>.Success(user, "Kullanıcı oluşturuldu."));
     }
-
-   
 }

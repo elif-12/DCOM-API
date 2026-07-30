@@ -1,3 +1,4 @@
+using DCOM_API.Common;
 using DCOM_API.Dtos;
 using DCOM_API.Entities;
 
@@ -7,5 +8,5 @@ public interface IUserService
 {
     Task<User?> ValidateCredentialsAsync(string username, string password);
     Task<UserResponse> CreateDoctorAsync(CreateUserRequest request);
-    Task<List<UserResponse>> GetAllAsync();
+    Task<PageResponse<UserResponse>> GetAllAsync(PageRequest request);
 }

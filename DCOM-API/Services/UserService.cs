@@ -1,4 +1,5 @@
 using DCOM_API.Application.Interfaces;
+using DCOM_API.Common;
 using DCOM_API.Dtos;
 using DCOM_API.Entities;
 
@@ -44,11 +45,14 @@ public class UserService : IUserService
         return new UserResponse(user.Id, user.Username, user.FullName, user.Role.ToString(), user.IsActive);
     }
 
-    public async Task<List<UserResponse>> GetAllAsync()
+    public async Task<PageResponse<UserResponse>> GetAllAsync(PageRequest request)
     {
-        var users = await _users.GetAllAsync();
-        return users
+        var paged = await _users.GetPagedAsync(request);
+
+        var items = paged.Items
             .Select(u => new UserResponse(u.Id, u.Username, u.FullName, u.Role.ToString(), u.IsActive))
             .ToList();
+
+        return new PageResponse<UserResponse>(items, paged.PageNumber, paged.PageSize, paged.TotalCount);
     }
 }

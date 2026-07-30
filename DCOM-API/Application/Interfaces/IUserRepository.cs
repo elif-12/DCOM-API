@@ -1,4 +1,5 @@
-﻿using DCOM_API.Entities;
+﻿using DCOM_API.Common;
+using DCOM_API.Entities;
 
 namespace DCOM_API.Application.Interfaces;
 
@@ -8,4 +9,5 @@ public interface IUserRepository
     Task<bool> ExistsByUsernameAsync(string username);
     Task AddAsync(User user);
     Task<List<User>> GetAllAsync();
+    Task<PageResponse<User>> GetPagedAsync(PageRequest request);
 }

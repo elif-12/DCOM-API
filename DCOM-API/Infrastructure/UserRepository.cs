@@ -1,4 +1,5 @@
 ﻿using DCOM_API.Application.Interfaces;
+using DCOM_API.Common;
 using DCOM_API.Data;
 using DCOM_API.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -25,4 +26,18 @@ public class UserRepository : IUserRepository
 
     public async Task<List<User>> GetAllAsync() =>
         await _context.Users.ToListAsync();
+
+    public async Task<PageResponse<User>> GetPagedAsync(PageRequest request)
+    {
+        var query = _context.Users.OrderBy(u => u.Username);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip(request.Skip)
+            .Take(request.Take)
+            .ToListAsync();
+
+        return new PageResponse<User>(items, request.PageNumber, request.PageSize, totalCount);
+    }
 }

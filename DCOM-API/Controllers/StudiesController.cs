@@ -1,7 +1,7 @@
-﻿using DCOM_API.Services;
+﻿using DCOM_API.Common;
+using DCOM_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DCOM_API.Common;
 
 namespace DCOM_API.Controllers;
 
@@ -18,10 +18,10 @@ public class StudiesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetStudies()
+    public async Task<IActionResult> GetStudies([FromQuery] PageRequest request)
     {
-        var studies = await _studyService.GetAllAsync();
-        return Ok(ApiResponse<List<StudySummary>>.Success(studies));
+        var studies = await _studyService.GetAllAsync(request);
+        return Ok(ApiResponse<PageResponse<StudySummary>>.Success(studies));
     }
 
     [HttpPut("{id}")]

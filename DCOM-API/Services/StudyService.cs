@@ -1,5 +1,5 @@
 ﻿using DCOM_API.Application.Interfaces;
-using DCOM_API.Infrastructure;
+using DCOM_API.Common;
 
 namespace DCOM_API.Services;
 
@@ -14,11 +14,11 @@ public class StudyService : IStudyService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<List<StudySummary>> GetAllAsync()
+    public async Task<PageResponse<StudySummary>> GetAllAsync(PageRequest request)
     {
-        var studies = await _studies.GetAllWithDetailsAsync();
+        var paged = await _studies.GetPagedWithDetailsAsync(request);
 
-        return studies.Select(s => new StudySummary(
+        var items = paged.Items.Select(s => new StudySummary(
             s.Id,
             s.StudyInstanceUid,
             s.Description,
@@ -28,11 +28,14 @@ public class StudyService : IStudyService
             s.Series.Count,
             s.Series.Sum(se => se.DicomFiles.Count)
         )).ToList();
+
+        return new PageResponse<StudySummary>(items, paged.PageNumber, paged.PageSize, paged.TotalCount);
     }
+
     public async Task<bool> UpdateAsync(Guid id, UpdateStudyRequest request)
     {
         var study = await _studies.GetByIdAsync(id);
-        if (study is null) return false;          // kayıt yok → false
+        if (study is null) return false;
 
         study.Description = request.Description;
         study.StudyDate = request.StudyDate;
@@ -47,7 +50,7 @@ public class StudyService : IStudyService
         var study = await _studies.GetByIdAsync(id);
         if (study is null) return false;
 
-        _studies.Delete(study);                   // soft-delete olacak
+        _studies.Delete(study);
         await _unitOfWork.SaveChangesAsync();
         return true;
     }
