@@ -3,6 +3,7 @@ using DCOM_API.Entities;
 using DCOM_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DCOM_API.Common;
 
 namespace DCOM_API.Controllers;
 
@@ -20,12 +21,14 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
-        => Ok(await _userService.GetAllAsync());
+    => Ok(ApiResponse<List<UserResponse>>.Success(await _userService.GetAllAsync()));
 
     [HttpPost]
     public async Task<IActionResult> CreateDoctor(CreateUserRequest request)
     {
         var user = await _userService.CreateDoctorAsync(request);
-        return CreatedAtAction(nameof(GetAll), new { id = user.Id }, user);
+        return Ok(ApiResponse<UserResponse>.Success(user, "Kullanıcı oluşturuldu."));
     }
+
+   
 }

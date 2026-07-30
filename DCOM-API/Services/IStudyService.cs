@@ -3,7 +3,11 @@
 public interface IStudyService
 {
     Task<List<StudySummary>> GetAllAsync();
+    Task<bool> UpdateAsync(Guid id, UpdateStudyRequest request);   
+    Task<bool> DeleteAsync(Guid id);
 }
+// Güncellenebilir alanlar (kimlik olan StudyInstanceUid değişmez)
+public record UpdateStudyRequest(string? Description, DateTime? StudyDate);
 
 public record StudySummary(
     Guid Id,

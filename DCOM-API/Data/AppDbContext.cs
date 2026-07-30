@@ -35,10 +35,10 @@ namespace DCOM_API.Data
                 .HasQueryFilter(u => !u.IsDeleted);   // <-- eklenen satır: silinmişleri gizle
 
             // --- Multi-tenant: her sorguya otomatik "sadece benim verim" filtresi ---
-            modelBuilder.Entity<Patient>().HasQueryFilter(p => p.UserId == _currentUser.UserId);
-            modelBuilder.Entity<Study>().HasQueryFilter(s => s.UserId == _currentUser.UserId);
-            modelBuilder.Entity<Series>().HasQueryFilter(s => s.UserId == _currentUser.UserId);
-            modelBuilder.Entity<DicomFile>().HasQueryFilter(d => d.UserId == _currentUser.UserId);
+            modelBuilder.Entity<Patient>().HasQueryFilter(p => p.UserId == _currentUser.UserId && !p.IsDeleted);
+            modelBuilder.Entity<Study>().HasQueryFilter(s => s.UserId == _currentUser.UserId && !s.IsDeleted);
+            modelBuilder.Entity<Series>().HasQueryFilter(s => s.UserId == _currentUser.UserId && !s.IsDeleted);
+            modelBuilder.Entity<DicomFile>().HasQueryFilter(d => d.UserId == _currentUser.UserId && !d.IsDeleted);
 
             // --- Benzersizlik artık KULLANICI BAZINDA (aynı hasta farklı kullanıcılarda olabilir) ---
             modelBuilder.Entity<Patient>()
@@ -114,6 +114,13 @@ namespace DCOM_API.Data
                 {
                     entry.Entity.UpdatedDate = now;
                 }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeleterUserId = userId;
+                }
+                
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using DCOM_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DCOM_API.Common;
 
 namespace DCOM_API.Controllers;
 
@@ -21,14 +22,14 @@ public class DicomController : ControllerBase
     public async Task<IActionResult> Upload([FromForm] DicomUploadRequest request)
     {
         if (request.File is null || request.File.Length == 0)
-            return BadRequest("Dosya boş.");
+            return BadRequest(ApiResponse<DicomUploadResult>.Fail("Dosya boş.", "EMPTY_FILE"));
 
         var result = await _dicomService.UploadAsync(request.File);
 
         if (!result.Success)
-            return BadRequest(result.Error);
+            return BadRequest(ApiResponse<DicomUploadResult>.Fail(result.Error ?? "Yükleme başarısız.", "UPLOAD_FAILED"));
 
-        return Ok(result);
+        return Ok(ApiResponse<DicomUploadResult>.Success(result));
     }
 
     public class DicomUploadRequest

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using DCOM_API.Common;
 
 namespace DCOM_API.Middleware;
 
@@ -45,12 +46,14 @@ public class ExceptionHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = statusCode;
 
-        var payload = JsonSerializer.Serialize(new
+        var response = ApiResponse<object>.Fail(ex.Message, statusCode.ToString());
+
+        var payload = JsonSerializer.Serialize(response, new JsonSerializerOptions
         {
-            statusCode,
-            message = ex.Message
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
 
         return context.Response.WriteAsync(payload);
+
     }
 }

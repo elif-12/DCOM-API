@@ -26,4 +26,12 @@ public class StudyRepository : IStudyRepository
             .Include(s => s.Series)
                 .ThenInclude(se => se.DicomFiles)
             .ToListAsync();
+    public Task<Study?> GetByIdAsync(Guid id) =>
+    _context.Studies.FirstOrDefaultAsync(s => s.Id == id);
+
+    public void Update(Study study) =>
+        _context.Studies.Update(study);
+
+    public void Delete(Study study) =>
+        _context.Studies.Remove(study);
 }
