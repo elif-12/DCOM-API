@@ -1,8 +1,8 @@
+using DCOM_API.Application.Interfaces;
 using DCOM_API.Common;
 using DCOM_API.Dtos;
 using DCOM_API.Services;
 using Microsoft.AspNetCore.Mvc;
-using DCOM_API.Common;
 
 namespace DCOM_API.Controllers;
 
@@ -12,11 +12,16 @@ public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly ITokenService _tokenService;
+    private readonly ITokenStore _tokenStore;
+    private readonly int _idleMinutes;
 
-    public AuthController(IUserService userService, ITokenService tokenService)
+    public AuthController(IUserService userService, ITokenService tokenService,
+                         ITokenStore tokenStore, IConfiguration config)
     {
         _userService = userService;
         _tokenService = tokenService;
+        _tokenStore = tokenStore;
+        _idleMinutes = config.GetValue<int>("Jwt:IdleMinutes");
     }
 
     [HttpPost("login")]
@@ -26,8 +31,10 @@ public class AuthController : ControllerBase
         if (user is null)
             return Unauthorized(ApiResponse<LoginResponse>.Fail("Kullanıcı adı veya şifre hatalı.", "INVALID_CREDENTIALS"));
 
-        var token = _tokenService.CreateToken(user);
-        var response = new LoginResponse(token, user.Username, user.FullName, user.Role.ToString());
+        var tokenResult = _tokenService.CreateToken(user);
+        await _tokenStore.SetAsync(tokenResult.TokenId, TimeSpan.FromMinutes(_idleMinutes));  // idle takibini başlat
+
+        var response = new LoginResponse(tokenResult.Token, user.Username, user.FullName, user.Role.ToString());
         return Ok(ApiResponse<LoginResponse>.Success(response));
     }
 }

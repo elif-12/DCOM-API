@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +75,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Token store seçimi (appsettings: TokenStore:Provider = "InMemory" | "Redis")
+var storeProvider = builder.Configuration["TokenStore:Provider"];
+if (string.Equals(storeProvider, "Redis", StringComparison.OrdinalIgnoreCase))
+{
+    var redisConn = builder.Configuration["Redis:ConnectionString"]!;
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        ConnectionMultiplexer.Connect(redisConn));
+    builder.Services.AddSingleton<ITokenStore, RedisStore>();
+}
+else
+{
+    builder.Services.AddMemoryCache();
+    builder.Services.AddSingleton<ITokenStore, InMemoryStore>();
+}
+
 var app = builder.Build();
 
 // Migration'ları uygula + süper admin yoksa oluştur
@@ -93,6 +109,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
+app.UseMiddleware<DCOM_API.Middleware.IdleTimeoutMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

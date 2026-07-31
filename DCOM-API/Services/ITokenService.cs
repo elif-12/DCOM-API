@@ -4,5 +4,6 @@ namespace DCOM_API.Services;
 
 public interface ITokenService
 {
-    string CreateToken(User user);
+    TokenResult CreateToken(User user);
 }
+public record TokenResult(string Token, string TokenId);
