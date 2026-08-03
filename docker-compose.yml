@@ -37,7 +37,6 @@ services:
         condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      # appsettings'i override ediyoruz: container'da servis adlarıyla bağlan
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=DicomDb;Username=postgres;Password=123456"
       TokenStore__Provider: "Redis"
       Redis__ConnectionString: "redis:6379"
