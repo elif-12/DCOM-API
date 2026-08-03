@@ -1,0 +1,48 @@
+services:
+  # --- PostgreSQL veritabanı ---
+  db:
+    image: postgres:16
+    container_name: dcom-postgres
+    environment:
+      POSTGRES_DB: DicomDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123456"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- Redis (token store için) ---
+  redis:
+    image: redis:7
+    container_name: dcom-redis
+    ports:
+      - "6379:6379"
+
+  # --- DCOM-API uygulaması ---
+  api:
+    build:
+      context: ./DCOM-API
+      dockerfile: Dockerfile
+    container_name: dcom-api
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # appsettings'i override ediyoruz: container'da servis adlarıyla bağlan
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=DicomDb;Username=postgres;Password=123456"
+      TokenStore__Provider: "Redis"
+      Redis__ConnectionString: "redis:6379"
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:
