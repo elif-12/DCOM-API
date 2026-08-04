@@ -1,6 +1,8 @@
 # DCOM-API
 
-.NET 10 ile geliştirilmiş, Clean Architecture prensiplerine uygun katmanlı yapıda ve xUnit ile Moq kullanılarak birim testleri yazılmış, tıbbi görüntü (DICOM) dosyalarını yönetmek için hazırlanmış bir Web API projesi.
+.NET 10 ile geliştirilmiş, Clean Architecture yaklaşımıyla katmanlı yapıda ve xUnit + Moq ile birim testleri yazılmış, tıbbi görüntü (DICOM) dosyalarını yöneten kurumsal bir Web API projesidir.
+
+Kullanıcılar sisteme DICOM dosyası yükler, uygulama dosyanın içindeki hasta ve çekim bilgilerini otomatik okuyup veritabanına kaydeder. Her kullanıcı yalnızca kendi yüklediği verileri görebilir.
 
 ## Özellikler
 
